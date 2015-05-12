@@ -21,12 +21,12 @@ class Server(threading.Thread):
 
     def read_queue(self):
         while True:
-            print("Sleeping for 1 seconds...")
             order_json = self.orders.get_order()
             if not order_json == "":
                 parsed_json = json.loads(order_json)
                 message_type = parsed_json['messageType']
                 if message_type == "ORDER_COMPLETE":
+                    print("Hey, this is " + self.name + " giving away the order")
                     token_number = parsed_json['order']['tokenNumber']
                     customer_name = parsed_json['order']['customerName']
                     order_details = parsed_json['order']['orderDetails']
@@ -43,7 +43,7 @@ class Server(threading.Thread):
                     print("Broadcasting order to customers code here...")
             time.sleep(1)
 
-serverName = str(sys.argv[0])
+serverName = str(sys.argv[1])
 if not serverName == "":
     server = Server(str(sys.argv[1]))
 else:
