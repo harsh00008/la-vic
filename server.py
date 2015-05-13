@@ -11,6 +11,7 @@ Pyro4.config.REQUIRE_EXPOSE = True
 
 order_json=None
 my_uri = ""
+my_name = ""
 
 class Server(object):
     @Pyro4.expose
@@ -18,36 +19,44 @@ class Server(object):
         global order_json
         response_json = order_json
         order_json = None
+        print_title("Hey Thanks! Please take your order!")
         return response_json
 
 def serverCustomer():
-    print("Time to work!")
+    clear_screen()
+    global my_name
+    print_main_title("NEW SERVER " + str(my_name).upper())
+    print_success("Time to work!")
     global order_json
-    while True:
-        try:
-            orders = Pyro4.Proxy("PYRONAME:lavic.queue.readyOrders")
-            if int(orders.get_size()) > 0:
-                parsed_json = orders.get_order()
-                if parsed_json is not None:
-                    message_type = parsed_json['messageType']
-                    if message_type == "ORDER_COMPLETE":
-                        print_info("I've got an order to announce")
-                        token_number = parsed_json['order']['tokenNumber']
-                        print_title("Announcing token "+ str(token_number))
-                        parsed_json['messageType'] = "ORDER_PREPARED"
-                        order_json = parsed_json
-                        broadcast_customers()
-            time.sleep(6)
-        except:
-            print_error("Some problem getting json")
+    queue_address = "PYRONAME:lavic.queue.readyOrders"
+    print_network("Connecting to " + queue_address)
+    try:
+        orders = Pyro4.Proxy(queue_address)
+        while True:
+            try:
+                if int(orders.get_size()) > 0:
+                    parsed_json = orders.get_order()
+                    if parsed_json is not None:
+                        message_type = parsed_json['messageType']
+                        if message_type == "ORDER_COMPLETE":
+                            print_info("I've got an order to announce")
+                            token_number = parsed_json['order']['tokenNumber']
+                            print_title("Announcing token "+ str(token_number))
+                            parsed_json['messageType'] = "ORDER_PREPARED"
+                            order_json = parsed_json
+                            broadcast_customers()
+                time.sleep(6)
+            except:
+                print_error("Some problem getting json")
+    except:
+        print_error("Could not connect to queue.")
+
 
 def broadcast_customers():
         global my_uri
         global order_json
-
         ns=Pyro4.locateNS()
         customer_list = ns.list("lavic.customer.")
-        print(str(customer_list))
         shout_limit = 3
         count = 0
         for count in range(0, shout_limit):
@@ -107,7 +116,6 @@ def clear_screen():
 
 
 def activate():
-    serverName = str(sys.argv[1])
     server = Server()
     myIp = str(socket.gethostbyname(socket.gethostname()))
     daemon=Pyro4.Daemon(myIp)           
@@ -115,17 +123,24 @@ def activate():
     uri=daemon.register(server)
     global my_uri
     my_uri = uri
+    global my_name
+    print_success("My Url " + str(uri))
     daemon.requestLoop()
 
 if __name__ == "__main__":
     try:
-        
+        global my_name
+        my_name = str(sys.argv[1])
         server_activate = Thread(target=activate)
         server_start = Thread(target=serverCustomer)
-        server_start.start()
-        server_activate.start()
-        server_activate.join()
-        server_start.join()
+        try:
+            server_start.start()
+            server_activate.start()
+            server_activate.join()
+            server_start.join()
+        except:
+            print_error("Could not connect to name server..")
+
 
     except:
         print(Back.RED + Style.BRIGHT + Fore.WHITE  + " ERROR " + Fore.RESET + Back.RESET + Style.RESET_ALL + Fore.MAGENTA + Style.BRIGHT + " : Please specify a server name as an argument. Exiting...")
