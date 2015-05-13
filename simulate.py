@@ -4,7 +4,7 @@ import Pyro4
 import threading
 import time
 
-class Start(threading.Thread):
+class Start():
     def __init__(self):
         print("Simulating addition of orders")
 
@@ -19,12 +19,12 @@ class Start(threading.Thread):
         print("Adding new token 14 to queue")
         json_message = '{"messageType":"ORDER_COMPLETE","message":"","order":{"tokenNumber":"14","customerName":"Omi","orderDetails":[{"itemId":"1","itemName":"Burger","unitCost":"10.12","quantity":"1"},{"itemId":"2","itemName":"French Fries","unitCost":"5.78","quantity":"3"},{"itemId":"8","itemName":"Medium Coke","unitCost":"2.28","quantity":"2"}]}}'
         orders.add_order(json_message)
-        time.sleep(6)
+        time.sleep(8)
 
         print("Adding new token 16 to queue")
         json_message = '{"messageType":"ORDER_COMPLETE","message":"","order":{"tokenNumber":"16","customerName":"John","orderDetails":[{"itemId":"1","itemName":"Burger","unitCost":"10.12","quantity":"1"},{"itemId":"2","itemName":"French Fries","unitCost":"5.78","quantity":"3"},{"itemId":"8","itemName":"Medium Coke","unitCost":"2.28","quantity":"2"}]}}'
         orders.add_order(json_message)
-        time.sleep(7)
+        time.sleep(4)
 
 start = Start()
 start.add_orders()

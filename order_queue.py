@@ -18,7 +18,6 @@ class OrderQueue(object):
     def get_order(self):
         if not ordersQueue.empty():
             return ordersQueue.get()
-        return ""
 
     @Pyro4.expose
     def add_order(self, json_message):
@@ -35,6 +34,7 @@ uri=daemon.register(order)   		  # register the greeting object as a Pyro object
 ns.register("lavic.server", uri)
 print("Ready. uri =" + str(uri))      # print the uri so we can use it in the client later
 daemon.requestLoop()                  # start the event loop of the server to wait for calls
+
 
 
 
