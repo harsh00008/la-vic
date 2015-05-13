@@ -2,7 +2,7 @@ __author__ = 'Harsh Malewar'
 
 import Pyro4
 import Queue
-import simplejson as json
+import json
 import socket
 
 Pyro4.config.REQUIRE_EXPOSE = True
