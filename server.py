@@ -18,6 +18,7 @@ class Server(object):
     def take_order(self):
         global order_json
         response_json = order_json
+        response_json['message'] = "Hey thanks for waiting. This is your order. Have a good day."
         order_json = None
         print_title("Hey Thanks! Please take your order!")
         return response_json
@@ -69,6 +70,7 @@ def broadcast_customers():
                     try:
                         global my_uri
                         customer_obj = Pyro4.Proxy(pyro_address)
+                        order_json['message'] = "Announcing token " + str(token_number)
                         customer_obj.listen("server", my_uri, order_json )
                         print_success("Sent")
                     except:
